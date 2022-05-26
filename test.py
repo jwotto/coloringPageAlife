@@ -1,11 +1,22 @@
-#include "opencv2/core.hpp"
 
 import cv2 as cv
+import numpy as np
+import imutils
+  
+path = 'Photos/cat.png'
 
-img = cv.imread('Photos/cat.png')
+image = cv.imread(path)
 
-print('yofdgdfgfgd')
 
-cv.imshow('Cat',img)
+window_name = 'image'
+  
 
-cv.waitKey(0)
+#cv.imshow(window_name, image)
+
+rotated = imutils.rotate(image, 0)
+cv.imshow("Rotated by 180 Degrees", rotated)
+#cv.getRotationMatrix2D(0,0,40)
+
+
+cv.waitKey(0) 
+cv.destroyAllWindows() 
