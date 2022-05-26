@@ -1,5 +1,5 @@
 import cv2 as cv
-video = cv.VideoCapture(1)
+video = cv.VideoCapture(0)
 
 while True:
     ret, frame = video.read()
