@@ -1,21 +1,14 @@
-
 import cv2 as cv
-import numpy as np
-import imutils
-
-path = 'Photos/cat.png'
-
-image = cv.imread(path)
-
-window_name = 'image'
-  
-
-#cv.imshow(window_name, image)
-
-rotated = imutils.rotate(image, 5)
-cv.imshow("Rotated by 180 Degrees", rotated)
-#cv.getRotationMatrix2D(0,0,40)
+import matplotlib.pyplot as plt #usefull for working with images
 
 
-cv.waitKey(0) 
-cv.destroyAllWindows() 
+#IMREAD_GRAYSCALE for black and white
+img = cv.imread("Photos/cat.png",cv.IMREAD_COLOR)
+
+#cv.imshow("cat",img)
+
+plt.imshow(img)
+plt.show()
+
+cv.waitKey(0)
+cv.destroyAllWindows()
