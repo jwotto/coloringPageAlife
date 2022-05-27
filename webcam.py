@@ -1,5 +1,17 @@
 import cv2 as cv
-from matplotlib import pyplot as plt
+import numpy as np
+video = cv.VideoCapture(1)
 
-cap = cv.VideoCapture(0)
-ret, frame = cap.read()
+
+
+while True:
+    ret, frame = video.read()
+  
+    cv.imshow("beat", frame)
+    if cv.waitKey(30) == ord('x'): 
+        break
+
+
+
+video.release()
+cv.destroyAllWindows()
