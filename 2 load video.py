@@ -10,6 +10,7 @@ while True:
     else:
         video = cv.VideoCapture("Photos/dance.mov")
 
-    
+
+
 video.release()
 cv.destroyAllWindows()
