@@ -1,16 +1,16 @@
-from curses.ascii import NUL
-from pickle import NONE
+
 import cv2 as cv
 import numpy as np
+import copy
 
-
+last_biggest = None
 
 def biggest_contour(contours):
     biggest = np.array([])
     max_area = 0
     for i in contours:
         area = cv.contourArea(i)
-        if area > 1000:
+        if area > 100:
             peri = cv.arcLength(i, True)
             approx = cv.approxPolyDP(i, 0.015 * peri, True)
             if area > max_area and len(approx) == 4:
@@ -40,20 +40,25 @@ while True:
 
     biggest = biggest_contour(contours)
 
+    #if contour is detected
     if biggest.all() > 1:
-        print (biggest)
-        cv.drawContours(frame, [biggest], -1, (0, 255, 0), 3)
+        print(biggest)
+        cv.drawContours(frame, [biggest], -1, (255, 0, 0), 7)
+   
+        
   
+    
+    cv.circle(frame, (500, 200), 100, (255,0,0), 7)
   
-    cv.imshow("cam", frame)
+    cv.imshow("Contour detection", frame)
+
     
     
     
     
-    
-    
-    if cv.waitKey(30) == ord('x'): 
+    if cv.waitKey(500) == ord('x'): 
         break
+
 
 video.release()
 cv.destroyAllWindows()
