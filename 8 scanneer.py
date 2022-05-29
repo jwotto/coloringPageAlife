@@ -20,16 +20,10 @@ def biggest_contour(contours):
 
 img = cv2.VideoCapture(1)
 
-while True:
-    ret, frame = img.read()
-  
-    cv2.imshow("cam", frame)
-    if cv2.waitKey(30) == ord('x'): 
-        break
 
 
 
-#img.release()
+img.release()
 
 
 img_original = img.copy()
@@ -85,6 +79,6 @@ img_hor = np.hstack((img_original, gray, edged, img))
 cv2.imshow("Contour detection", img_hor)
 cv2.imshow("Warped perspective", img_output)
 
-#cv2.imwrite('output/document.jpg', img_output)
+cv2.imwrite('output/document.jpg', img_output)
 
 cv2.waitKey(0)
