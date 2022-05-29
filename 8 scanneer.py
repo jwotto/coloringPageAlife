@@ -2,30 +2,23 @@ import cv2
 import numpy as np
 
 
-#returns the biggest outline/countours
 def biggest_contour(contours):
     biggest = np.array([])
     max_area = 0
     for i in contours:
         area = cv2.contourArea(i)
-        if area > 1000:
+        if area > 15000:
             peri = cv2.arcLength(i, True)
             approx = cv2.approxPolyDP(i, 0.015 * peri, True)
             if area > max_area and len(approx) == 4:
                 biggest = approx
                 max_area = area
+                print(area)
+
     return biggest
 
 
-
-img = cv2.VideoCapture(1)
-
-
-
-
-img.release()
-
-
+img = cv2.imread('input/pro.jpeg')
 img_original = img.copy()
 
 # Image modification
@@ -79,6 +72,6 @@ img_hor = np.hstack((img_original, gray, edged, img))
 cv2.imshow("Contour detection", img_hor)
 cv2.imshow("Warped perspective", img_output)
 
-cv2.imwrite('output/document.jpg', img_output)
+#cv2.imwrite('output/document.jpg', img_output)
 
 cv2.waitKey(0)
