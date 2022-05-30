@@ -3,6 +3,7 @@ from pickle import TRUE
 import cv2 as cv
 import numpy as np
 
+last_img_output = None
 
 last_biggest = []
 
@@ -11,25 +12,20 @@ def biggest_contour(contours):
     max_area = 0
     for i in contours:
         area = cv.contourArea(i)
-        if area > 2000:
+        if area > 10000:
             peri = cv.arcLength(i, True)
             approx = cv.approxPolyDP(i, 0.015 * peri, True)
             if area > max_area and len(approx) == 4:
                 biggest = approx
                 max_area = area
                 print(area)
-               
-                
-
     return biggest
 
-
+#get webcam camera change numbers for different camera's
 video = cv.VideoCapture(1)
 
 while True:
     ret, frame = video.read()
-  
-
     img_original = frame.copy()
 
     # Image modification
@@ -47,7 +43,6 @@ while True:
    # when box is detected
     if biggest != []:
         cv.drawContours(frame, [biggest], -1, (255, 0, 0), 7)
-        #cv.imshow("Contour detection", frame)
         
         # Pixel values in the original image
         points = biggest.reshape(4, 2)
@@ -83,17 +78,18 @@ while True:
         gray = np.stack((gray,) * 3, axis=-1)
         edged = np.stack((edged,) * 3, axis=-1)
 
-    
-        cv.imshow("Warped perspective", img_output)
+        #prev image
+        last_img_output = img_output
+        
+        
+        cv.imshow("Warped perspective", last_img_output)
+        
     cv.imshow("cam", frame)
     
-    if cv.waitKey() == ord('s'): 
-        cv.imwrite('output/scan.jpg', img_output)
-    
-    
     if cv.waitKey(30) == ord('x'): 
+        cv.imwrite('output/scan.jpg', img_output)
         break
-
+    
 
 video.release()
 cv.destroyAllWindows()
