@@ -2,14 +2,14 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
-im1 = cv2.imread('output/scan.jpg')          # Image that needs to be registered.
-im2 = cv2.imread('input/huis.png') # trainImage
+im1 = cv2.imread('input/testGijs.jpeg') # Image that needs to be registered.
+im2 = cv2.imread('ptrain/Tower.png') # trainImage
 
 img1 = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY)
 img2 = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
 
 # Initiate ORB detector
-orb = cv2.ORB_create(50)  #Registration works with at least 50 points
+orb = cv2.ORB_create(100)  #Registration works with at least 50 points
 
 # find the keypoints and descriptors with orb
 kp1, des1 = orb.detectAndCompute(img1, None)  #kp1 --> list of keypoints
