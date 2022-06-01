@@ -1,8 +1,7 @@
 import numpy as np
 import cv2
 
-img = cv2.imread('Photos/laptop.png', 0)
-
+img = cv2.imread('Photos/Tower_Test.png')
 orb = cv2.ORB_create(100)
 
 
