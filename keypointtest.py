@@ -2,7 +2,12 @@ import numpy as np
 import cv2
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 img = cv2.imread('Photos/Tower_Test.png')
+=======
+img = cv2.imread('ptrain/tower.png', 0)
+
+>>>>>>> Test_Kleurplaat
 =======
 img = cv2.imread('ptrain/tower.png', 0)
 
@@ -21,4 +26,4 @@ img2 = cv2.drawKeypoints(img, kp, None, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_K
 cv2.imshow("With keypoints", img2)
 cv2.waitKey(0)
 
-print(kp + " ")
+print(kp )
