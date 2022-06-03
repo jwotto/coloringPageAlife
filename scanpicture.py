@@ -23,7 +23,7 @@ def biggest_contour(contours):
 
 
 #get webcam camera change numbers for different camera's
-video = cv.VideoCapture(0)
+video = cv.VideoCapture(1)
 
 while True:
     ret, frame = video.read()
