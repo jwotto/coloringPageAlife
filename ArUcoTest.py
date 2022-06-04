@@ -9,6 +9,7 @@ import time
 camera = 0
 cameraWidth = 1280
 cameraHeight = 720
+frameRate = 60 / 100
 
 
 def main():
@@ -46,10 +47,8 @@ def main():
                 cv.putText(frame, "Raam", (100, 360),
                            cv.FONT_HERSHEY_SIMPLEX, 8, 255, 6)
 
-        # how many qr's?
-
         cv.imshow("cam", frame)
-        if cv.waitKey(17) == ord('x'):
+        if cv.waitKey(frameRate) == ord('x'):
             break
 
     video.release()
