@@ -5,23 +5,52 @@ import numpy as np
 import os
 import time
 
+
 camera = 0
-cameraWidth = 1920
-cameraHeight = 1080
+cameraWidth = 1280
+cameraHeight = 720
+
 
 def main():
+    # set video capture
     video = cv.VideoCapture(camera)
     video.set(3, cameraWidth)
     video.set(4, cameraHeight)
-    time.sleep(2)
 
+    # Load Aruco detectorx
+    parameters = cv.aruco.DetectorParameters_create()
+    aruco_dict = cv.aruco.Dictionary_get(cv.aruco.DICT_5X5_50)
+
+    time.sleep(2)
 
     while True:
         ret, frame = video.read()
+
+        # Get Aruco marker
+        corners, ids, _ = cv.aruco.detectMarkers(
+            frame, aruco_dict, parameters=parameters)
+
+        # Draw polygon around the marker
+        int_corners = np.int0(corners)
+        cv.polylines(frame, int_corners, True, (0, 255, 0), 2)
+
+        # get id when there are ids
+        if len(int_corners) > 0:
+            print(ids)
+
+            # what coloring page
+            if ids[[0]] <= 3:
+                cv.putText(frame, "Gebouw", (100, 360),
+                           cv.FONT_HERSHEY_SIMPLEX, 8, 255, 6)
+            if ids[[0]] >= 3 and ids[[0]] < 7:
+                cv.putText(frame, "Raam", (100, 360),
+                           cv.FONT_HERSHEY_SIMPLEX, 8, 255, 6)
+
+        # how many qr's?
+
         cv.imshow("cam", frame)
-        if cv.waitKey(30) == ord('x'): 
+        if cv.waitKey(17) == ord('x'):
             break
-                
 
     video.release()
     cv.destroyAllWindows()
