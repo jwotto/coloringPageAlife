@@ -1,15 +1,16 @@
-import os
 import cv2 as cv
 import cv2.aruco as aruco
 import numpy as np
-import os
 import time
 
 
 camera = 0
 cameraWidth = 1280
 cameraHeight = 720
-frameRate = 60 / 100
+frameRate = 60
+
+
+frameRate = int(1000/frameRate)
 
 
 def main():
@@ -37,15 +38,20 @@ def main():
 
         # get id when there are ids
         if len(int_corners) > 0:
-            print(ids)
+
+            totalAruco = int((len(ids)))
+
+            for i in range(totalAruco):
+                cv.putText(frame, str(ids[i]), int_corners[i][0][2],
+                           cv.FONT_HERSHEY_SIMPLEX, 1, 255, 3)
 
             # what coloring page
-            if ids[[0]] <= 3:
-                cv.putText(frame, "Gebouw", (100, 360),
-                           cv.FONT_HERSHEY_SIMPLEX, 8, 255, 6)
-            if ids[[0]] >= 3 and ids[[0]] < 7:
-                cv.putText(frame, "Raam", (100, 360),
-                           cv.FONT_HERSHEY_SIMPLEX, 8, 255, 6)
+            if ids[0] <= 3:
+                cv.putText(frame, "Gebouw", (10, 50),
+                           cv.FONT_HERSHEY_SIMPLEX, 2, 255, 6)
+            if ids[0] >= 4 and ids[[0]] < 7:
+                cv.putText(frame, "Raam", (10, 50),
+                           cv.FONT_HERSHEY_SIMPLEX, 2, 255, 6)
 
         cv.imshow("cam", frame)
         if cv.waitKey(frameRate) == ord('x'):
