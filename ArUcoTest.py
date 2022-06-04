@@ -9,6 +9,12 @@ cameraWidth = 1280
 cameraHeight = 720
 frameRate = 60
 
+pointLeftTop = 0
+pointRightTop = 0
+pointRightBottom = 0
+pointLeftBottom = 0
+
+
 
 frameRate = int(1000/frameRate)
 
@@ -42,8 +48,14 @@ def main():
             totalAruco = int((len(ids)))
 
             for i in range(totalAruco):
-                cv.putText(frame, str(ids[i]), int_corners[i][0][2],
+                cv.putText(frame, str(ids[i]), int_corners[i][0][(int((ids[i]+2) % 4))],
                            cv.FONT_HERSHEY_SIMPLEX, 1, 255, 3)
+
+                #draw the colering page area when all aruco codes are found  this code needs to be edited
+                if totalAruco == 4:
+                    cv.line(frame, int_corners[i][0][(int((ids[i]+2) % 4))], int_corners[(
+                        i+1) % 4][0][(int((ids[(i+1) % 4]+2) % 4))], (0, 255, 255), 5)
+
 
             # what coloring page
             if ids[0] <= 3:

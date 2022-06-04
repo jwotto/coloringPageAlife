@@ -1,5 +1,7 @@
 # coloringPageAlife
 
-morgen checken keypoint aligment
-https://www.youtube.com/watch?v=DZtUt4bKtmY
+aruco markers uitleggen in document 
+    hoe voeg je een nieuwe toe?
 
+
+midden uit snijden mooie funtie voor schrijven
