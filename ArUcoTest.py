@@ -4,7 +4,7 @@ import numpy as np
 import time
 
 
-camera = 0
+camera = 1
 cameraWidth = 1280
 cameraHeight = 720
 frameRate = 60
