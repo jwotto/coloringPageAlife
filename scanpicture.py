@@ -18,7 +18,7 @@ def biggest_contour(contours):
             if area > max_area and len(approx) == 4:
                 biggest = approx
                 max_area = area
-                print(area)
+              
     return biggest
 
 
@@ -68,13 +68,15 @@ while True:
             ((top_left[0] - bottom_left[0]) ** 2) + ((top_left[1] - bottom_left[1]) ** 2))
 
         # Output image size
-        max_width = max(int(bottom_width), int(top_width))
+        max_width = 200.0
         # max_height = max(int(right_height), int(left_height))
         max_height = int(max_width * 1.414)  # for A4
 
         # Desired points values in the output image
         converted_points = np.float32(
             [[0, 0], [max_width, 0], [0, max_height], [max_width, max_height]])
+
+        print(input_points)
 
         # Perspective transformation
         matrix = cv.getPerspectiveTransform(input_points, converted_points)

@@ -18,6 +18,15 @@ cornersPage = [(0,0),(0,0),(0,0),(0,0)] # [leftTop,rightTop,rightBottom,leftBott
 
 frameRate = int(1000/frameRate)
 
+#output image #landscape mode
+max_width = 297*4
+max_height = 210*4
+
+converted_points = np.float32(
+            [[0, 0], [max_width, 0], [0, max_height], [max_width, max_height]])
+
+
+
 #returns the group id dor example id 0 to 3 is group 0 and id 4 to 7 is group 1
 def groupId(id):
     id = (id - (id%4)) /4
@@ -51,6 +60,8 @@ def main():
 
     while True:
         ret, frame = video.read()
+        
+        original_frame = frame.copy()
 
         # Get Aruco marker
         corners, ids, _ = cv.aruco.detectMarkers(
@@ -58,7 +69,7 @@ def main():
 
         # Draw polygon around the marker
         int_corners = np.int0(corners)
-        #cv.polylines(frame, int_corners, True, (0, 255, 0), 2)
+        cv.polylines(frame, int_corners, True, (0, 255, 0), 2)
 
        
         # get id when there are ids
@@ -74,7 +85,7 @@ def main():
                 #get midanIds wich aruco markers are there the most
                 idGroupList.append(groupId(int(ids[i])))
                
-                print(uniqueIdCornerCheck(idList),idGroupList)
+                #print(uniqueIdCornerCheck(idList),idGroupList)
 
                 #collect all corners collering page
                 int_id = int((ids[i])%4)
@@ -86,9 +97,19 @@ def main():
                 
             #draw the colering page area when all aruco codes are found and there all the same group id 
             if totalAruco == 4 and uniqueIdCornerCheck(idList) == True:
+                
+                #draw cornas
                 for j in range(4):
                     cv.line(frame, cornersPage[j], cornersPage[(j+1)%4], (255, 0, 255), 2)
-                    
+                
+                #warp picture
+                input_points = np.float32([cornersPage[0],cornersPage[3],cornersPage[1],cornersPage[2]])
+                matrix = cv.getPerspectiveTransform(input_points, converted_points)
+                img_output = cv.warpPerspective(
+                original_frame, matrix, (max_width, max_height))
+                img_output = cv.rotate(img_output, cv.cv2.ROTATE_90_CLOCKWISE)
+                cv.imshow("Warped perspective", img_output)
+                 
             # what coloring page
             cv.putText(frame,colleringPageName[groupId(ids[0])], (10, 50),
                         cv.FONT_HERSHEY_SIMPLEX, 2, 255, 6)
