@@ -90,6 +90,7 @@ def main():
                
                 
             #only draw the colering page area when all aruco codes are found and there all the same group id 
+            #showgreenled
             if total_aruco == 4 and uniqueIdCornerCheck(id_list) == True:
                 
                 #draw lines around the scanned picture
@@ -113,6 +114,8 @@ def main():
         
         if cv.waitKey(FRAMERATE) == ord('x'):
             
+                
+
             break
 
     video.release()
