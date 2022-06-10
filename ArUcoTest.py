@@ -123,4 +123,3 @@ def main():
 
 main()
 
-# todo transform picture
