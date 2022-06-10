@@ -1,6 +1,4 @@
-from pickle import FALSE, TRUE
 import cv2 as cv
-from pandas import array
 import cv2.aruco as aruco
 import numpy as np
 import time
