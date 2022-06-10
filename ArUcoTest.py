@@ -6,26 +6,19 @@ import numpy as np
 import time
 
 #camera setup
-camera = 1
-cameraWidth = 1280
-cameraHeight = 720
-frameRate = 30
+CAMERA = 1
+CAMERAWIDTH = 1280
+CAMERAHEIGHT = 720
+FRAMERATE = 30
 
 #colering pages lis
-colleringPageName = ['Gebouw','Raam',]
+COLLERING_PAGE_NAME = ['Gebouw','Raam',]
 
-cornersPage = [(0,0),(0,0),(0,0),(0,0)] # [leftTop,rightTop,rightBottom,leftBottom]
-
-frameRate = int(1000/frameRate)
+FRAMERATE = int(1000/FRAMERATE)
 
 #output image #landscape mode
-max_width = 297*4
-max_height = 210*4
-
-converted_points = np.float32(
-            [[0, 0], [max_width, 0], [0, max_height], [max_width, max_height]])
-
-
+IMG_OUTPUT_WIDTH = 297*4
+IMG_OUTPUT_HEIGHT = 210*4
 
 #returns the group id dor example id 0 to 3 is group 0 and id 4 to 7 is group 1
 def groupId(id):
@@ -34,11 +27,11 @@ def groupId(id):
 
 #are there 4 unique codes with the same group id?
 def uniqueIdCornerCheck(idList):
-    idSum = 0 
+    id_sum = 0 
     if len(idList) == 4:
         for i in range(4):   
-            idSum += ((idList[i]%4)+1)
-        if idSum == 10: # because 1+2+3+4 = 10
+            id_sum += ((idList[i]%4)+1)
+        if id_sum == 10: # because 1+2+3+4 = 10
             return True
         else: 
             return False
@@ -48,19 +41,24 @@ def uniqueIdCornerCheck(idList):
 
 def main():
     # set video capture
-    video = cv.VideoCapture(camera)
-    video.set(3, cameraWidth)
-    video.set(4, cameraHeight)
+    video = cv.VideoCapture(CAMERA)
+    video.set(3, CAMERAWIDTH)
+    video.set(4, CAMERAHEIGHT)
 
     # Load Aruco detectorx
     parameters = cv.aruco.DetectorParameters_create()
     aruco_dict = cv.aruco.Dictionary_get(cv.aruco.DICT_5X5_50)
 
+    #wait time dor camera to startup
     time.sleep(2)
+    
+    #set corners for collering page
+    corners_page = [(0,0),(0,0),(0,0),(0,0)] # [leftTop,rightTop,rightBottom,leftBottom]
+    converted_points = np.float32(
+            [[0, 0], [IMG_OUTPUT_WIDTH, 0], [0, IMG_OUTPUT_HEIGHT], [IMG_OUTPUT_WIDTH, IMG_OUTPUT_HEIGHT]])
 
     while True:
         ret, frame = video.read()
-        
         original_frame = frame.copy()
 
         # Get Aruco marker
@@ -74,50 +72,48 @@ def main():
        
         # get id when there are ids
         if len(int_corners) > 0:
-            totalAruco = int((len(ids)))
-            idList = []
-            idGroupList = []
+            total_aruco = int((len(ids)))
+            id_list = []
+            id_group_list = []
             
-            for i in range(totalAruco):            
+            for i in range(total_aruco):            
                 #get list with different ids
-                idList.append(int(ids[i]))
+                id_list.append(int(ids[i]))
                 
                 #get midanIds wich aruco markers are there the most
-                idGroupList.append(groupId(int(ids[i])))
-               
-                #print(uniqueIdCornerCheck(idList),idGroupList)
+                id_group_list.append(groupId(int(ids[i])))
 
                 #collect all corners collering page
                 int_id = int((ids[i])%4)
-                cornersPage[int_id] = int_corners[i][0][(int((ids[i]+2) % 4))]
+                corners_page[int_id] = int_corners[i][0][(int((ids[i]+2) % 4))]
                 
-                #cornes pos
-                cv.putText(frame,str(cornersPage[int_id]), cornersPage[int_id],cv.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,255), 3)
+                #shows cornes positions on screen
+                cv.putText(frame,str(corners_page[int_id]), corners_page[int_id],cv.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,255), 3)
                
                 
-            #draw the colering page area when all aruco codes are found and there all the same group id 
-            if totalAruco == 4 and uniqueIdCornerCheck(idList) == True:
+            #only draw the colering page area when all aruco codes are found and there all the same group id 
+            if total_aruco == 4 and uniqueIdCornerCheck(id_list) == True:
                 
-                #draw cornas
+                #draw lines around the scanned picture
                 for j in range(4):
-                    cv.line(frame, cornersPage[j], cornersPage[(j+1)%4], (255, 0, 255), 2)
+                    cv.line(frame, corners_page[j], corners_page[(j+1)%4], (255, 0, 255), 2)
                 
-                #warp picture
-                input_points = np.float32([cornersPage[0],cornersPage[3],cornersPage[1],cornersPage[2]])
+                #warps  scanned picture 
+                input_points = np.float32([corners_page[0],corners_page[3],corners_page[1],corners_page[2]])
                 matrix = cv.getPerspectiveTransform(input_points, converted_points)
                 img_output = cv.warpPerspective(
-                original_frame, matrix, (max_width, max_height))
+                original_frame, matrix, (IMG_OUTPUT_WIDTH, IMG_OUTPUT_HEIGHT))
                 img_output = cv.rotate(img_output, cv.cv2.ROTATE_90_CLOCKWISE)
                 cv.imshow("Warped perspective", img_output)
                  
-            # what coloring page
-            cv.putText(frame,colleringPageName[groupId(ids[0])], (10, 50),
+            # shows name scanned colering page
+            cv.putText(frame,COLLERING_PAGE_NAME[groupId(ids[0])], (10, 50),
                         cv.FONT_HERSHEY_SIMPLEX, 2, 255, 6)
 
                 
         cv.imshow("cam", frame)
         
-        if cv.waitKey(frameRate) == ord('x'):
+        if cv.waitKey(FRAMERATE) == ord('x'):
             
             break
 
