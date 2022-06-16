@@ -171,3 +171,7 @@ def main():
     pixels.show()
 
 main()
+
+#aanpassing code
+# voor aanpassing pc
+# test test
