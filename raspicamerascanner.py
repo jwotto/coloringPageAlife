@@ -31,6 +31,8 @@ COLLERING_PAGE_NAME = ['Gebouw','Raam',]
 IMG_OUTPUT_WIDTH = 297*4
 IMG_OUTPUT_HEIGHT = 210*4
 
+SHARED_FOlDER = "/home/pi/share"
+
 
 #returns the group id dor example id 0 to 3 is group 0 and id 4 to 7 is group 1
 def groupId(id):
@@ -127,7 +129,7 @@ def main():
 
                     # make a picture from the lighted image
                     cv.imshow("Warped perspective", img_output)
-                    cv.imwrite('output/scan.jpg', img_output)
+                    cv.imwrite('/home/pi/share/scan.jpg', img_output)
                     picture_ready = False
                 
 
@@ -150,14 +152,18 @@ def main():
 
             #when no 4 aruco codes are found   
             else:
-                pixels.fill((255, 0, 0))
+                pixels.fill((0, 0, 255))
                 pixels.show()
 
             # shows name scanned colering page
             cv.putText(frame,COLLERING_PAGE_NAME[groupId(ids[0])], (10, 50),
                         cv.FONT_HERSHEY_SIMPLEX, 2, 255, 6)
 
-                
+        else:
+            
+            pixels.fill((0, 0, 255))
+            pixels.show()
+
         cv.imshow("cam", frame)
         # Clear the stream in preparation for the next frame
         raw_capture.truncate(0)
@@ -172,6 +178,3 @@ def main():
 
 main()
 
-#aanpassing code
-# voor aanpassing pc
-# test test
