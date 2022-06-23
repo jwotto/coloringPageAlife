@@ -15,13 +15,13 @@ GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 #ledsetup
 PIXEL_PIN = board.D10
-NUM_PIXELS = 60
+NUM_PIXELS = 195
 ORDER = neopixel.GRB
 
 #camera setup
 CAMERA = 0
-CAMERAWIDTH = 1280
-CAMERAHEIGHT = 720
+CAMERAWIDTH = int(1280)
+CAMERAHEIGHT = int(720)
 FRAME_RATE = 30
 
 #colering pages lis
@@ -152,7 +152,7 @@ def main():
 
             #when no 4 aruco codes are found   
             else:
-                pixels.fill((0, 0, 255))
+                pixels.fill((0, 125, 255))
                 pixels.show()
 
             # shows name scanned colering page
@@ -161,7 +161,7 @@ def main():
 
         else:
             
-            pixels.fill((0, 0, 255))
+            pixels.fill((0, 125, 255))
             pixels.show()
 
         cv.imshow("cam", frame)
