@@ -86,6 +86,8 @@ def main():
 
     button_pressed =False
 
+    send_switch = False
+
 
     def pixels_scanned_correct():
         for i in range(NUM_PIXELS_LEDRING):
@@ -159,6 +161,13 @@ def main():
                     # make a picture from the lighted image
                     cv.imshow("Warped perspective", img_output)
                     cv.imwrite('/home/pi/share/scan.jpg', img_output)
+
+                    send_switch = not send_switch
+
+                    f = open('/home/pi/share/data.txt', 'w')
+                    f.write(str(int(send_switch)))
+                    f.close()
+
 
                     picture_ready = False
                         
