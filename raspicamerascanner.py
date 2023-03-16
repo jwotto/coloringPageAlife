@@ -1,12 +1,14 @@
 from picamera.array import PiRGBArray 
 from picamera import PiCamera 
-import cv2 as cv
+import cv2
 import cv2.aruco as aruco
-import numpy as np
+import numpy
 import time
 import RPi.GPIO as GPIO
 import board
 import neopixel
+import argparse
+from pythonosc import udp_client
 
 
 #Gpio pin setup
@@ -16,23 +18,39 @@ GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 #ledsetup
 PIXEL_PIN = board.D10
 NUM_PIXELS_LEDRING = 60
-NUM_PIXELS_BOX = 135
+NUM_PIXELS_BOX = 270
 NUM_PIXELS = NUM_PIXELS_LEDRING + NUM_PIXELS_BOX
 ORDER = neopixel.GRB
 
 #camera setup
-CAMERAWIDTH = int(1280)
-CAMERAHEIGHT = int(720)
+#CAMERAWIDTH = int(1440)
+#CAMERAHEIGHT = int(810)
+#FRAME_RATE = 40
+
+#camera setup
+CAMERAWIDTH = int(1080)
+CAMERAHEIGHT = int(607)
 FRAME_RATE = 40
 
 #colering pages lis
 COLLERING_PAGE_NAME = ['Gebouw','Raam',]
 
 #output image #landscape mode A4
-IMG_OUTPUT_WIDTH = 297*4
-IMG_OUTPUT_HEIGHT = 210*4
+IMG_OUTPUT_WIDTH = 297*7
+IMG_OUTPUT_HEIGHT = 210*7
 
 SHARED_FOlDER = "/home/pi/share"
+
+#setup osc connection
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip", default="192.168.0.20",
+                        help="The ip of the OSC server")
+    parser.add_argument("--port", type=int, default=5005,
+                        help="The port the OSC server is listening on")
+    args = parser.parse_args()
+
+    client = udp_client.SimpleUDPClient(args.ip, args.port)
 
 
 #returns the group id dor example id 0 to 3 is group 0 and id 4 to 7 is group 1
@@ -62,20 +80,24 @@ def main():
     camera = PiCamera()
     camera.resolution = (CAMERAWIDTH, CAMERAHEIGHT)
     camera.framerate = FRAME_RATE
+    camera.brightness = 50
+    camera.contrast = 50
+    camera.exposure_mode = 'night'
+    camera.awb_mode = 'shade'
  
     # Generates a 3D RGB array and stores it in rawCapture
     raw_capture = PiRGBArray(camera, size=(CAMERAWIDTH, CAMERAHEIGHT))
  
     # Wait a certain number of seconds to allow the camera time to warmup
-    time.sleep(2)
+    time.sleep(4)
     
     # Load Aruco detectorx
-    parameters = cv.aruco.DetectorParameters_create()
-    aruco_dict = cv.aruco.Dictionary_get(cv.aruco.DICT_5X5_50)
+    parameters = cv2.aruco.DetectorParameters_create()
+    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_5X5_50)
 
     #set corners for collering page
     corners_page = [(0,0),(0,0),(0,0),(0,0)] # [leftTop,rightTop,rightBottom,leftBottom]
-    converted_points = np.float32(
+    converted_points = numpy.float32(
             [[0, 0], [IMG_OUTPUT_WIDTH, 0], [0, IMG_OUTPUT_HEIGHT], [IMG_OUTPUT_WIDTH, IMG_OUTPUT_HEIGHT]])
 
     #set pixels
@@ -91,26 +113,44 @@ def main():
 
     def pixels_scanned_correct():
         for i in range(NUM_PIXELS_LEDRING):
-            pixels[i] = (0, 255, 0)
+            pixels[i] = (180, 180, 180)
         for j in range(NUM_PIXELS_BOX):
-            pixels[NUM_PIXELS_LEDRING+j] = (0 ,255 , 0)
+            pixels[NUM_PIXELS_LEDRING+j] = (0, 8, 0)
         pixels.show()
 
     def pixels_scanned_uncorrect():
         for i in range(NUM_PIXELS_LEDRING):
-            pixels[i] = (0,0,255)
+            pixels[i] = (128, 128, 128)
         for j in range(NUM_PIXELS_BOX):
-            pixels[NUM_PIXELS_LEDRING+j] = (0,0,255)
+            pixels[NUM_PIXELS_LEDRING+j] = (0, 0, 8)
         pixels.show()
+
+    #pixelbrightness
+    pb = 120
 
     def pixels_white():
         for i in range(NUM_PIXELS_LEDRING):
             pixels[i] = (0, 0, 0)
         for j in range(NUM_PIXELS_BOX):
-            pixels[NUM_PIXELS_LEDRING+j] = (255 ,255 , 255)
+            pixels[NUM_PIXELS_LEDRING+j] = (pb, pb, pb)
         pixels.show()
 
+    def pixels_loading():
+        for i in range(NUM_PIXELS_LEDRING):
+            pixels[i] = (0, 0, 0)
+        #for j in range(NUM_PIXELS_BOX):
+        #    pixels[NUM_PIXELS_LEDRING+j] = (255,234, 0)
+        pixels.show()
+        pixels.fill((0, 0, 0))
+        for t in range(102):  # 102
+            pixels[NUM_PIXELS_LEDRING+t] = (8, 6, 0)
+            pixels[NUM_PIXELS_LEDRING+t+85] = (8, 6, 0)
 
+            #pixels[NUM_PIXELS_LEDRING+NUM_PIXELS_BOX-t-85] = (8,6, 0)
+            #pixels[NUM_PIXELS_LEDRING+NUM_PIXELS_BOX-t-165-22] = (8,6, 0)
+
+            pixels.show()
+            #time.sleep(0.16666)
     
 
 
@@ -121,12 +161,12 @@ def main():
         original_frame = frame.copy()
 
         # Get Aruco marker
-        corners, ids, _ = cv.aruco.detectMarkers(
+        corners, ids, _ = cv2.aruco.detectMarkers(
             frame, aruco_dict, parameters=parameters)
 
         # Draw polygon around the marker
-        int_corners = np.int0(corners)
-        cv.polylines(frame, int_corners, True, (0, 255, 0), 2)
+        int_corners = numpy.int0(corners)
+        #cv2.polylines(frame, int_corners, True, (0, 255, 0), 2)
        
         # get id when there are ids
         if len(int_corners) > 0:
@@ -146,30 +186,37 @@ def main():
                 corners_page[int_id] = int_corners[i][0][(int((ids[i]+2) % 4))]
                 
                 #shows cornes positions on screen
-                cv.putText(frame,str(corners_page[int_id]), corners_page[int_id],cv.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,255), 3)
+                #cv2.putText(frame,str(corners_page[int_id]), corners_page[int_id],cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,255), 3)
             
 
             if picture_ready:
 
                     #warps  scanned picture 
-                    input_points = np.float32([corners_page[0],corners_page[3],corners_page[1],corners_page[2]])
-                    matrix = cv.getPerspectiveTransform(input_points, converted_points)
-                    img_output = cv.warpPerspective(
+                input_points = numpy.float32(
+                    [corners_page[0], corners_page[3], corners_page[1], corners_page[2]])
+                matrix = cv2.getPerspectiveTransform(
+                    input_points, converted_points)
+                img_output = cv2.warpPerspective(
                     original_frame, matrix, (IMG_OUTPUT_WIDTH, IMG_OUTPUT_HEIGHT))
-                    img_output = cv.rotate(img_output, cv.cv2.ROTATE_90_CLOCKWISE)
+                    img_output = cv2.rotate(
+                        img_output, cv2.cv2.ROTATE_90_CLOCKWISE)
 
                     # make a picture from the lighted image
-                    cv.imshow("Warped perspective", img_output)
-                    cv.imwrite('/home/pi/share/scan.jpg', img_output)
+                    cv2.imshow("Warped perspective", img_output)
+                    cv2.imwrite('/home/pi/share/scan.jpg', img_output)
+
 
                     send_switch = not send_switch
 
-                    f = open('/home/pi/share/data.txt', 'w')
-                    f.write(str(int(send_switch)))
-                    f.close()
+                    #f = open('/home/pi/share/data.txt', 'w')
+                    #f.write(str(int(send_switch)))
+                    #f.close()
 
-
+                    #length of animation
+                    #new animation
+                    #pixels_loading()
                     picture_ready = False
+                    button_pressed = False
                         
 
                         
@@ -185,14 +232,19 @@ def main():
 
                 #draw lines around the scanned picture
                 for j in range(2):
-                    cv.line(frame, corners_page[j], corners_page[(j+1)%4], (255, 0, 255), 2)
+                    cv2.line(frame, corners_page[j], corners_page[(
+                        j+1) % 4], (255, 0, 255), 2)
                 
                 button_value = GPIO.input(17) 
                 if (button_value == True or button_pressed == True):
                     pixels_white()
-                    time.sleep(1)
+                    client.send_message("/button", 1)
+                    time.sleep(0.5)
+
+
                     picture_ready = True
-                    button_pressed = False
+                    client.send_message("/button", 0)
+                    #button_pressed = False
                     
 
             #when no 4 aruco codes are found   
@@ -200,25 +252,24 @@ def main():
                 pixels_scanned_uncorrect()
 
             # shows name scanned colering page
-            cv.putText(frame,COLLERING_PAGE_NAME[groupId(ids[0])], (10, 50),
-                        cv.FONT_HERSHEY_SIMPLEX, 2, 255, 6)
+            #cv2.putText(frame,COLLERING_PAGE_NAME[groupId(ids[0])], (10, 50),
+             #           cv2.FONT_HERSHEY_SIMPLEX, 2, 255, 6)
 
         else:
             pixels_scanned_uncorrect()
 
-        cv.imshow("cam", frame)
+        cv2.imshow("cam", frame)
         
         # Clear the stream in preparation for the next frame
         raw_capture.truncate(0)
 
-        key = cv.waitKey(1) & 0xFF
+        key = cv2.waitKey(1) & 0xFF
         if key == ord("x"):
             break
         if key == ord("p"):
             button_pressed = True
             
-
-    #cv.destroyAllWindows()
+    #cv2.destroyAllWindows()
     pixels.fill((0, 0, 0))
     pixels.show()
 
